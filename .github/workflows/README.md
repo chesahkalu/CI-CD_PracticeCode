@@ -29,7 +29,7 @@ To create or modify a workflow:
 
 ## Workflow Steps
 
-The [workflow.yml](.github/workflows/workflow.yml) file  shows a well commented workflow that contains the following steps:
+The [workflow.yml](workflow.yml) file  shows a well commented workflow that contains the following steps:
 
 - Checkout: The repository's code is checked out for the workflow.
 - Install Dependencies: Sets up the required environment by installing dependencies.

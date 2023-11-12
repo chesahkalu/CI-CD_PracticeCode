@@ -1,0 +1,42 @@
+# Define a Tekton Pipeline, which is a set of tasks that will be executed in order to complete a CI/CD job
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  # Name of the pipeline - 'hello-pipeline'
+  name: hello-pipeline
+spec:
+  # Define parameters that can be passed to the pipeline
+  params:
+    - name: message  # Name of the parameter that will be passed to the tasks
+  # Define the sequence of tasks in this pipeline
+  tasks:
+    - name: hello  # Name of the pipeline task
+      taskRef:
+        name: echo  # Reference to a Tekton Task 'echo' defined separately
+      params:
+        - name: message  # Name of the parameter in the task
+          value: "$(params.message)"  # Pass the pipeline parameter to the task
+
+---
+# Define another Tekton Pipeline for continuous deployment
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  # Name of the pipeline - 'cd-pipeline'
+  name: cd-pipeline
+spec:
+  # Define parameters that can be passed to the pipeline
+  params:
+    - name: repo-url  # URL of the git repository
+    - name: branch  # Git branch to be used
+      default: "master"  # Default value for the branch parameter
+  # Define the sequence of tasks in this pipeline
+  tasks:
+    - name: clone  # Name of the pipeline task
+      taskRef:
+        name: checkout  # Reference to a Tekton Task 'checkout' defined separately
+      params:
+      - name: repo-url  # Name of the parameter in the task
+        value: "$(params.repo-url)"  # Pass the pipeline parameter 'repo-url' to the task
+      - name: branch  # Name of the parameter in the task
+        value: "$(params.branch)"  # Pass the pipeline parameter 'branch' to the task

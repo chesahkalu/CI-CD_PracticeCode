@@ -1,0 +1,41 @@
+# Name of the workflow
+name: CI workflow
+
+# Define when the workflow should be triggered
+on:
+  # Trigger the workflow on push events but only for the main branch
+  push:
+    branches: [ "main" ]
+  # Trigger the workflow on pull request events but only for the main branch
+  pull_request:
+    branches: [ "main" ]
+
+# Define jobs to be executed by the workflow
+jobs:
+  # Job for building the application
+  build:
+    # Specify the type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Define the container environment in which the job will be executed
+    container: python:3.9-slim
+
+    # Define the sequence of tasks (steps) that will be executed as part of the job
+    steps:
+      - name: Checkout  # Step for checking out the repository
+        uses: actions/checkout@v3  # Use the checkout action at version 3
+
+      - name: Install dependencies  # Step to install project dependencies
+        run: |  # Commands to run as part of the step
+          python -m pip install --upgrade pip  # Upgrade pip
+          pip install -r requirements.txt  # Install dependencies from requirements.txt
+
+      - name: Lint with flake8  # Step to lint the code
+        run: |  # Commands to run as part of the step
+          # Run flake8 with specific flags to check for errors
+          flake8 service --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Run flake8 again with different flags for complexity and line length
+          flake8 service --count --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Run unit tests with nose  # Step to run unit tests
+        run: nosetests -v --with-spec --spec-color --with-coverage --cover-package=app  # Command to run nose tests with coverage and colored output

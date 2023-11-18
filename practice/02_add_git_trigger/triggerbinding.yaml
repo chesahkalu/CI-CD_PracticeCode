@@ -1,0 +1,19 @@
+# Define a TriggerBinding resource in the Tekton Triggers API group
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  # Name of the TriggerBinding
+  name: cd-binding
+spec:
+  # Parameters that the TriggerBinding will extract from the event payload
+  params:
+    - name: repository
+      # Extracts the repository URL from the event payload
+      # $(body.repository.url) is a variable that will be populated with the corresponding value
+      # from the incoming event's JSON payload
+      value: $(body.repository.url)
+
+    - name: branch
+      # Extracts the branch information from the event payload
+      # Similar to repository URL, $(body.ref) captures the branch data from the event's JSON payload
+      value: $(body.ref)

@@ -1,0 +1,22 @@
+# Define an EventListener resource in the Tekton Triggers API group
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  # Name of the EventListener
+  name: cd-listener
+spec:
+  # Specify the service account that the EventListener will use
+  # The service account should have the necessary permissions to execute the tasks
+  serviceAccountName: pipeline
+  
+  # Define the triggers that this EventListener will respond to
+  triggers:
+    - bindings:
+        # Reference to a TriggerBinding resource
+        # TriggerBindings allow you to capture fields from an event and store them as parameters
+        - ref: cd-binding
+      
+      # Reference to a TriggerTemplate resource
+      # TriggerTemplates define what PipelineRuns or TaskRuns to start in response to events
+      template:
+        ref: cd-template

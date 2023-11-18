@@ -19,6 +19,10 @@ Tekton Tasks are the building blocks of Tekton Pipelines. They are reusable, loo
 
 `kubectl apply -f tasks.yaml`
 
+- check the tasks are created
+
+`kubectl get tasks` or `tkn task ls`
+
 ## Applying Tekton Pipeline
 
 Tekton Pipelines are a way to build CI/CD pipelines using Tekton Tasks. They are defined in the [pipeline.yaml](pipeline.yaml) with a well commented pipeline.
@@ -26,6 +30,10 @@ Tekton Pipelines are a way to build CI/CD pipelines using Tekton Tasks. They are
 - Next, apply the Tekton Pipeline to your cluster.
 
 `kubectl apply -f pipeline.yaml`
+
+- check the pipeline is created
+
+`kubectl get pipelines` or `tkn pipeline ls`
 
 ## Run the pipeline
 

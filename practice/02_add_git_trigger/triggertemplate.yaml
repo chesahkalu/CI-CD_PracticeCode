@@ -1,0 +1,42 @@
+# Define a TriggerTemplate resource in the Tekton Triggers API group
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  # Name of the TriggerTemplate
+  name: cd-template
+spec:
+  # Parameters that the TriggerTemplate will receive from the TriggerBinding or EventListener
+  params:
+    - name: repository
+      # Description of the parameter for better understanding
+      description: The git repo
+      # Default value for the parameter if not provided by the TriggerBinding
+      default: " "
+    
+    - name: branch
+      # Description of the parameter
+      description: the branch for the git repo
+      # Default value for the branch parameter
+      default: master
+  
+  # Define the resources that will be created when this TriggerTemplate is triggered
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        # Generate a unique name for each PipelineRun instance
+        generateName: cd-pipeline-run-
+      spec:
+        # Specify the service account for the PipelineRun
+        serviceAccountName: pipeline
+        # Reference to the Pipeline that this PipelineRun will run
+        pipelineRef:
+          name: cd-pipeline
+        # Pass parameters to the PipelineRun. These parameters are populated from the TriggerTemplate's parameters
+        params:
+          - name: repo-url
+            # $(tt.params.repository) will be replaced with the value of the 'repository' parameter
+            value: $(tt.params.repository)
+          - name: branch
+            # $(tt.params.branch) will be replaced with the value of the 'branch' parameter
+            value: $(tt.params.branch)

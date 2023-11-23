@@ -1,6 +1,6 @@
 # Create a base pipeline
 
-This folder holds the files for create a simple base pipeline for CI/CD practice.
+This folder holds the files to create a simple base pipeline for CI/CD practice.
 
 ## Tekton
 

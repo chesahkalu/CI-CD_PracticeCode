@@ -1,0 +1,67 @@
+# Define a Pipeline resource in the Tekton API group
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  # Name of the pipeline
+  name: cd-pipeline
+spec:
+  # Define workspaces used by the pipeline
+  # Workspaces in Tekton are shared storage volumes that tasks within a pipeline can access
+  workspaces:
+    - name: pipeline-workspace  # Name of the workspace
+
+  # Define parameters that can be passed to the pipeline
+  params:
+    - name: repo-url  # URL of the git repository
+    - name: branch  # Name of the branch to use
+      default: "master"  # Default branch if not provided
+
+  # Define the tasks that will be part of the pipeline
+  tasks:
+    - name: clone  # Name of the task
+      workspaces:
+        - name: output  # Name of the workspace within the task
+          workspace: pipeline-workspace  # Reference to the pipeline-level workspace
+      taskRef:
+        name: git-clone  # Reference to a Task resource, here it is 'git-clone' which should be defined separately
+      params:
+        - name: url  # Parameter for the git URL
+          value: $(params.repo-url)  # Use the repo-url parameter from the pipeline
+        - name: revision  # Parameter for the git revision (branch, tag, commit)
+          value: $(params.branch)  # Use the branch parameter from the pipeline
+
+    - name: lint
+      taskRef:
+        name: echo
+      params:
+      - name: message
+        value: "Calling Flake8 linter..."
+      runAfter:
+        - clone
+
+    - name: tests
+      taskRef:
+        name: echo
+      params:
+      - name: message
+        value: "Running unit tests with PyUnit..."
+      runAfter:
+        - lint
+
+    - name: build
+      taskRef:
+        name: echo
+      params:
+      - name: message
+        value: "Building image for $(params.repo-url) ..."
+      runAfter:
+        - tests
+
+    - name: deploy
+      taskRef:
+        name: echo
+      params:
+      - name: message
+        value: "Deploying $(params.branch) branch of $(params.repo-url) ..."
+      runAfter:
+        - build

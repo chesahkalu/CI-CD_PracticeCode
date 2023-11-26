@@ -116,4 +116,17 @@ Specify `workingDir` as the path to the workspace you defined `(i.e., $(workspac
 
     `kubectl apply -f tasks.yaml`
 
-## Step 4: Modify the Pipeline to Use Tasks
+## Step 4: Modify the Pipeline to Use Nose Tasks
+
+```    - name: tests
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+      taskRef:
+        name: nose
+      params:
+      - name: args
+        value: "-v --with-spec --spec-color"
+      runAfter:
+        - lint
+```

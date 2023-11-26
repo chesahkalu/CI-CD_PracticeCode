@@ -72,3 +72,48 @@ This will install the flake8 task in your Kubernetes namespace.
     -w name=pipeline-workspace,claimName=pipelinerun-pvc \
     --showlog```
 
+## Step 3: Add tests Task
+
+There is no task for running unit tests in the Tekton Catalog, we create a custom task to run unit tests using the unit test framework
+called nosetests by adding a new task called nose that uses the shared workspace for the pipeline and runs nosetests in a python:3.9-slim
+
+- First creat a new task called nose in the tasks.yml file:
+
+- Next, include the workspace that has the code to test. Since flake8 uses the name `source`, we use that for consistency.
+
+- Next, create a parameter called `args` just like the `flake8` task has, giving it a `description`:, make the `type`: a string, and a `default`: with the verbose flag “-v” as the default.
+
+- Next, specify the steps, which is only one with name `nosetests`. Have it run in a `python:3.9-slim image`.
+Specify `workingDir` as the path to the workspace you defined `(i.e., $(workspaces.source.path))`.
+
+- Next, Include a bash script to install the Python requirements and run the nosetests.
+
+    ```---
+    apiVersion: tekton.dev/v1beta1
+    kind: Task
+    metadata:
+    name: nose
+    spec:
+    workspaces:
+        - name: source
+    params:
+        - name: args
+        description: Arguments to pass to nose
+        type: string
+        default: "-v"
+    steps:
+        - name: nosetests
+        image: python:3.9-slim
+        workingDir: $(workspaces.source.path)
+        script: |
+            #!/bin/bash
+            set -e
+            python -m pip install --upgrade pip wheel
+            pip install -r requirements.txt
+            nosetests $(params.args)
+            ```
+- Apply the changes to the kluster:
+
+    `kubectl apply -f tasks.yaml`
+
+## Step 4: Modify the Pipeline to Use Tasks

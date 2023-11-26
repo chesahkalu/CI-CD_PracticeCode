@@ -143,3 +143,15 @@ Specify `workingDir` as the path to the workspace you defined `(i.e., $(workspac
     -p branch="main" \
     -w name=pipeline-workspace,claimName=pipelinerun-pvc \
     --showlog```
+
+- You can see the pipeline run status by listing the PipelineRun with:
+
+    `tkn pipelinerun ls`
+
+- You can see the logs of the pipeline run with:
+    
+    `tkn pipelinerun logs <pipeline-run-name>`
+
+- You can check the logs of the last run with:
+    
+    `tkn pipelinerun logs --last`

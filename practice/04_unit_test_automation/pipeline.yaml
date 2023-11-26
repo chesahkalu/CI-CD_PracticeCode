@@ -1,25 +1,35 @@
-# Define another Tekton Pipeline for continuous deployment
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
-metadata:
-  # Name of the pipeline - 'cd-pipeline'
+metadata:  
   name: cd-pipeline
 spec:
-  # Define parameters that can be passed to the pipeline
+  workspaces:
+    - name: pipeline-workspace
   params:
-    - name: repo-url  # URL of the git repository
-    - name: branch  # Git branch to be used
-      default: "master"  # Default value for the branch parameter
-  # Define the sequence of tasks in this pipeline
+    - name: repo-url
+    - name: branch
+      default: master
   tasks:
-    - name: clone  # Name of the pipeline task
+    - name: init
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace          
       taskRef:
-        name: checkout  # Reference to a Tekton Task 'checkout' defined separately
+        name: cleanup
+
+    - name: clone
+      workspaces:
+        - name: output
+          workspace: pipeline-workspace          
+      taskRef:
+        name: git-clone
       params:
-      - name: repo-url  # Name of the parameter in the task
-        value: "$(params.repo-url)"  # Pass the pipeline parameter 'repo-url' to the task
-      - name: branch  # Name of the parameter in the task
-        value: "$(params.branch)"  # Pass the pipeline parameter 'branch' to the task
+      - name: url
+        value: $(params.repo-url)
+      - name: revision
+        value: $(params.branch)
+      runAfter:
+        - init      
 
     - name: lint
       taskRef:

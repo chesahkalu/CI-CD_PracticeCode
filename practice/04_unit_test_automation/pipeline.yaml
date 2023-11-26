@@ -37,14 +37,20 @@ spec:
         - name: revision  # Parameter for the git revision (branch, tag, commit)
           value: $(params.branch)  # Use the branch parameter from the pipeline
 
-    - name: lint
+    # Define a task in the pipeline for linting
+    - name: lint  # Name of this task
+      workspaces:
+        - name: source  # Name of the workspace as referred to in this task
+          workspace: pipeline-workspace  # Reference to the pipeline-level workspace
       taskRef:
-        name: echo
+        name: flake8  # Reference to a Task resource named 'flake8'
       params:
-      - name: message
-        value: "Calling Flake8 linter..."
+        - name: image  # Parameter for specifying the Docker image to use
+          value: "python:3.9-slim"  # The Docker image to use, here it's Python 3.9 slim version
+        - name: args  # Parameter for command-line arguments
+          value: ["--count","--max-complexity=10","--max-line-length=127","--statistics"]  # Arguments for the flake8 linting tool
       runAfter:
-        - clone
+        - clone  # This task will run after the 'clone' task
 
     - name: tests
       taskRef:

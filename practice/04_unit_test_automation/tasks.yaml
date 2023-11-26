@@ -13,8 +13,9 @@ spec:
       command: [/bin/echo]
       args: ["$(params.message)"]
 
----
 # Define a Task resource in the Tekton CI/CD system
+---
+# Clean up the workspace
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
@@ -27,7 +28,6 @@ spec:
   # Define workspaces used by this task
   workspaces:
     - name: source  # Workspace named 'source'
-
   # Define the steps that make up this task
   steps:
     - name: remove  # Name of the step
@@ -54,3 +54,41 @@ spec:
           # Delete hidden files and directories starting with two dots followed by another character
           rm -rf "${WORKSPACE_SOURCE_PATH}"/..?*
         fi
+
+---
+# Test the code using the nose unit testing framework
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  # The name of the task is 'nose'
+  name: nose
+spec:
+  # Define workspaces used by this task
+  # Workspaces in Tekton are shared storage volumes that tasks within a pipeline can access
+  workspaces:
+    - name: source  # Workspace named 'source'
+
+  # Define parameters that can be passed to the task
+  params:
+    - name: args  # Parameter for specifying arguments to nosetests
+      description: Arguments to pass to nose  # Description of the parameter
+      type: string  # Type of the parameter
+      default: "-v"  # Default value if not provided
+
+  # Define the steps that make up this task
+  steps:
+    - name: nosetests  # Name of the step
+      image: python:3.9-slim  # Use the Python 3.9 slim Docker image
+      workingDir: $(workspaces.source.path)  # Set the working directory to the 'source' workspace path
+      script: |
+        #!/bin/bash
+        # Enable strict error handling
+        set -e
+        # Upgrade pip and wheel
+        python -m pip install --upgrade pip wheel
+        # Install dependencies from requirements.txt
+        pip install -r requirements.txt
+        # Run nosetests with the arguments provided in the task's parameter
+        nosetests $(params.args)
+
+

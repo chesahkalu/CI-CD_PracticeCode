@@ -14,39 +14,43 @@ spec:
       args: ["$(params.message)"]
 
 ---
-
+# Define a Task resource in the Tekton CI/CD system
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
+  # The name of the task is 'cleanup'
   name: cleanup
 spec:
+  # Description of the task
   description: This task will clean up a workspace by deleting all of the files.
+  
+  # Define workspaces used by this task
   workspaces:
-    - name: source
+    - name: source  # Workspace named 'source'
+
+  # Define the steps that make up this task
   steps:
-    - name: remove
-      image: alpine:3
+    - name: remove  # Name of the step
+      image: alpine:3  # Use the Alpine version 3 Docker image
       env:
-        - name: WORKSPACE_SOURCE_PATH
-          value: $(workspaces.source.path)
-      workingDir: $(workspaces.source.path)
+        - name: WORKSPACE_SOURCE_PATH  # Define an environment variable
+          value: $(workspaces.source.path)  # Value is the path to the 'source' workspace
+      workingDir: $(workspaces.source.path)  # Set the working directory to the 'source' workspace path
       securityContext:
-        runAsNonRoot: false
-        runAsUser: 0
+        runAsNonRoot: false  # Allows the container to run as root
+        runAsUser: 0  # Run as the root user
       script: |
         #!/usr/bin/env sh
+        # Enable strict error handling
         set -eu
         echo "Removing all files from ${WORKSPACE_SOURCE_PATH} ..."
-        # Delete any existing contents of the directory if it exists.
-        #
-        # We don't just "rm -rf ${WORKSPACE_SOURCE_PATH}" because ${WORKSPACE_SOURCE_PATH} might be "/"
-        # or the root of a mounted volume.
+        
+        # Check if the directory exists
         if [ -d "${WORKSPACE_SOURCE_PATH}" ] ; then
           # Delete non-hidden files and directories
           rm -rf "${WORKSPACE_SOURCE_PATH:?}"/*
-          # Delete files and directories starting with . but excluding ..
+          # Delete hidden files and directories excluding the parent directory reference (..)
           rm -rf "${WORKSPACE_SOURCE_PATH}"/.[!.]*
-          # Delete files and directories starting with .. plus any other character
+          # Delete hidden files and directories starting with two dots followed by another character
           rm -rf "${WORKSPACE_SOURCE_PATH}"/..?*
         fi
-

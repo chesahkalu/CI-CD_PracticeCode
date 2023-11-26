@@ -67,7 +67,7 @@ This will install the flake8 task in your Kubernetes namespace.
 - Run the pipeline to test the lint task:
 
     ```tkn pipeline start cd-pipeline \
-    -p repo-url="https://github.com/ibm-developer-skills-network/wtecc-CICD_PracticeCode.git" \
+    -p repo-url="https://github.com/chesahkalu/CI-CD_PracticeCode.git" \
     -p branch="main" \
     -w name=pipeline-workspace,claimName=pipelinerun-pvc \
     --showlog```
@@ -118,6 +118,7 @@ Specify `workingDir` as the path to the workspace you defined `(i.e., $(workspac
 
 ## Step 4: Modify the Pipeline to Use Nose Tasks
 
+- Edit your pipeline.yaml file:
 ```    - name: tests
       workspaces:
         - name: source
@@ -130,3 +131,15 @@ Specify `workingDir` as the path to the workspace you defined `(i.e., $(workspac
       runAfter:
         - lint
 ```
+
+- Apply the changes to the kluster:
+
+    `kubectl apply -f pipeline.yaml`
+
+- Run the pipeline to test the tests task:
+
+    ```tkn pipeline start cd-pipeline \
+    -p repo-url="https://github.com/chesahkalu/CI-CD_PracticeCode.git" \
+    -p branch="main" \
+    -w name=pipeline-workspace,claimName=pipelinerun-pvc \
+    --showlog```

@@ -48,7 +48,7 @@ Run the pipeline using the Tekton CLI:
 
 ```
 tkn pipeline start cd-pipeline \
-    -p repo-url="https://github.com/ibm-developer-skills-network/wtecc-CICD_PracticeCode.git" \
+    -p repo-url="https://github.com/chesahkalu/CI-CD_PracticeCode.git" \
     -p branch="main" \
     -w name=pipeline-workspace,claimName=pipelinerun-pvc \
     --showlog

@@ -1,0 +1,89 @@
+# Define a Pipeline resource in the Tekton API group
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  # Name of the pipeline
+  name: cd-pipeline
+spec:
+  # Define workspaces used by the pipeline
+  # Workspaces in Tekton are shared storage volumes that tasks within a pipeline can access
+  workspaces:
+    - name: pipeline-workspace  # Name of the workspace
+
+  # Define parameters that can be passed to the pipeline
+  params:
+    - name: repo-url  # URL of the git repository
+    - name: branch  # Name of the branch to use
+      default: "master"  # Default branch if not provided
+    - name: build-image  # Name of the image to build
+
+  # Define the tasks that will be part of the pipeline
+  tasks:
+    - name: init  # Name of the task within the pipeline
+    workspaces:
+      - name: source  # Name of the workspace as referred to in this task
+        workspace: pipeline-workspace  # Reference to the pipeline-level workspace
+    taskRef:
+      name: cleanup  # Reference to an existing Task resource named 'cleanup'
+        
+    - name: clone  # Name of the task
+      workspaces:
+        - name: output  # Name of the workspace within the task
+          workspace: pipeline-workspace  # Reference to the pipeline-level workspace
+      taskRef:
+        name: git-clone  # Reference to a Task resource, here it is 'git-clone' which should be defined separately
+      params:
+        - name: url  # Parameter for the git URL
+          value: $(params.repo-url)  # Use the repo-url parameter from the pipeline
+        - name: revision  # Parameter for the git revision (branch, tag, commit)
+          value: $(params.branch)  # Use the branch parameter from the pipeline
+
+    # Define a task in the pipeline for linting
+    - name: lint  # Name of this task
+      workspaces:
+        - name: source  # Name of the workspace as referred to in this task
+          workspace: pipeline-workspace  # Reference to the pipeline-level workspace
+      taskRef:
+        name: flake8  # Reference to a Task resource named 'flake8'
+      params:
+        - name: image  # Parameter for specifying the Docker image to use
+          value: "python:3.9-slim"  # The Docker image to use, here it's Python 3.9 slim version
+        - name: args  # Parameter for command-line arguments
+          value: ["--count","--max-complexity=10","--max-line-length=127","--statistics"]  # Arguments for the flake8 linting tool
+      runAfter:
+        - clone  # This task will run after the 'clone' task
+
+    - name: tests  # Name of this task
+      workspaces:
+        - name: source  # Name of the workspace as referred to in this task
+          workspace: pipeline-workspace  # Reference to the pipeline-level workspace
+      taskRef:
+        name: nose  # Reference to a Task resource named 'nose'
+      params:
+        - name: args  # Parameter for specifying the arguments to pass to the nose task
+          value: "-v --with-spec --spec-color"  # The value of the arguments, enabling verbose output, specification formatting, and color
+      runAfter:
+        - lint  # Specifies that this 'tests' task should run after the 'lint' task has completed
+
+
+    - name: build # Name of this task
+      workspaces:
+        - name: source # Name of the workspace as referred to in this task
+          workspace: pipeline-workspace # Reference to the pipeline-level workspace
+      taskRef:
+        name: buildah # Reference to a Task resource named 'buildah'
+        kind: ClusterTask # This is a ClusterTask, not a Task, so it is defined in the cluster scope
+      params:
+        - name: IMAGE # Parameter for specifying the name of the image to build
+          value: "$(params.build-image)" # The value of the image name, using the build-image parameter from the pipeline
+      runAfter:
+        - tests # Specifies that this 'build' task should run after the 'tests' task has completed
+
+    - name: deploy
+      taskRef:
+        name: echo
+      params:
+      - name: message
+        value: "Deploying $(params.branch) branch of $(params.repo-url) ..."
+      runAfter:
+        - build

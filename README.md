@@ -36,3 +36,8 @@ This repository contains series of codes and documentation to implement and CD_f
     - Describe the parameters required to use the flake8 task
     - Use the flake8 task in a Tekton pipeline to lint your code
     - Create a test task from scratch and use it in your pipeline
+
+* 6: [Build an Image](CD_files/05_build_an_image/README.md)
+    - Determine which ClusterTasks are available on your cluster
+    - Describe the parameters required to use the buildah ClusterTask
+    - Use the buildah ClusterTask in a Tekton pipeline to build an image and push it to an image registry

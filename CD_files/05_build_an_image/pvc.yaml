@@ -1,0 +1,28 @@
+# Define a PersistentVolumeClaim, which is a request for storage in a Kubernetes cluster
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  # Name of the PersistentVolumeClaim
+  name: pipelinerun-pvc
+spec:
+  # Specify the StorageClass to determine how the underlying storage is provisioned
+  # The storageClassName should match one that your cluster recognizes
+  storageClassName: skills-network-learner
+  
+  # Define the size of the storage requested
+  resources:
+    requests:
+      storage: 1Gi  # Request 1 GB of storage
+  
+  # Define the volume mode; 'Filesystem' means the volume is mounted as a regular file system
+  volumeMode: Filesystem
+  
+  # Access modes determine how the volume can be accessed
+  accessModes:
+    - ReadWriteOnce  # The volume can be mounted as read-write by a single node
+
+
+#This PersistentVolumeClaim (PVC) is used to request storage resources in a Kubernetes cluster. 
+#In the context of a Tekton pipeline, a PVC like pipelinerun-pvc can be used as a workspace to provide storage that can be shared across tasks within the pipeline. 
+#This PVC requests 1 GB of storage and is meant to be used as a filesystem with read-write access by a single node at a time. 
+#The storageClassName specifies which StorageClass to use and should align with what's available or configured in your Kubernetes cluster.

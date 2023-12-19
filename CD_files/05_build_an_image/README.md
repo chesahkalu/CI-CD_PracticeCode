@@ -86,3 +86,44 @@ spec:
   params:
     - name: build-image
 ```
+
+## Step 5: Apply Changes and Run the Pipeline
+
+Now that you have made all of the changes to the pipeline, you can apply them to your cluster and run the pipeline.
+
+1. Apply the changes to the pipeline by running `kubectl apply -f pipeline.yaml`
+
+2. Next, make sure that the persistent volume claim for the workspace exists by applying it using `kubectl`: `kubectl apply -f pvc.yaml`
+
+## Step 6: Start the Pipeline
+
+When you start the pipeline, you need to pass in the build-image parameter, which is the name of the image to build.
+
+Now, start the pipeline to see your new build task run. Use the Tekton CLI `pipeline start` command to run the pipeline, passing in the parameters `repo-url`, `branch`, and `build-image` using the `-p` option. Specify the workspace `pipeline-workspace` and volume claim `pipelinerun-pvc` using the `-w`  option:
+
+```
+tkn pipeline start cd-pipeline \
+    -p repo-url="https://github.com/ibm-developer-skills-network/wtecc-CICD_PracticeCode.git" \
+    -p branch=main \
+    -p build-image=image-registry.openshift-image-registry.svc:5000/$SN_ICR_NAMESPACE/tekton-lab:latest \
+    -w name=pipeline-workspace,claimName=pipelinerun-pvc \
+    --showlog
+```
+
+
+## Step 7: Check the Pipeline Run Status
+
+- You can check the status of the pipeline run using the Tekton CLI `tkn pipelinerun list` command:
+
+`tkn pipelinerun list`
+
+- you should see the following output:
+
+```
+NAME             STARTED         DURATION    STATUS
+cd-pipeline-run  2 minutes ago   2 minutes   Succeeded
+```
+
+- You can check the logs of the last run with:
+
+`tkn pipelinerun logs cd-pipeline-run`

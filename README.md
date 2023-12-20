@@ -41,3 +41,8 @@ This repository contains series of codes and documentation to implement and CD_f
     - Determine which ClusterTasks are available on your cluster
     - Describe the parameters required to use the buildah ClusterTask
     - Use the buildah ClusterTask in a Tekton pipeline to build an image and push it to an image registry
+
+* 7: [Deploy to Kubernetes](CD_files/06_deploy_to_kubernetes/README.md)
+    - Determine which ClusterTasks are available on your cluster
+    - Describe the parameters required to use the kubectl ClusterTask
+    - Use the kubectl ClusterTask in a Tekton pipeline to deploy an image to a Kubernetes cluster

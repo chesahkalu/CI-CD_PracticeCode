@@ -75,7 +75,7 @@ Now, start the pipeline to see your new deploy task run. Use the Tekton CLI `pip
 
 ```
 tkn pipeline start cd-pipeline \
-    -p repo-url="https://github.com/ibm-developer-skills-network/wtecc-CICD_PracticeCode.git" \
+    -p repo-url="hhttps://github.com/chesahkalu/Flow_CI-CD_Engine.git" \
     -p branch=main \
     -p app-name=hitcounter \
     -p build-image=image-registry.openshift-image-registry.svc:5000/$SN_ICR_NAMESPACE/tekton-lab:latest \
